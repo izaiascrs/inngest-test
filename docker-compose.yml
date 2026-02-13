@@ -1,0 +1,72 @@
+services:
+  inngest:
+    image: inngest/inngest
+    command: 'inngest start --event-key 6ED41F684D1A3B82169EA23F8F0393D99484F6421FAF602AF11AF8E484F93F47 --signing-key 714FB4EBF69261EB89F11930C91F1610BAB0983728546B298692E86AF73E99F1 --postgres-uri postgres://inngest:password@postgres:5432/inngest --redis-uri redis://redis:6379 --sdk-url http://host.docker.internal:3000/api/inngest'
+    ports:
+      - '8288:8288'
+      - '8289:8289'
+    environment: 
+      - INNGEST_DEV=0
+      - INNGEST_ENV=production
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - inngest-network
+    healthcheck:
+      test:
+        - CMD
+        - curl
+        - '-f'
+        - 'http://localhost:8288/health'
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  postgres:
+    image: 'postgres:17'
+    environment:
+      - POSTGRES_DB=inngest
+      - POSTGRES_USER=inngest
+      - POSTGRES_PASSWORD=password
+    ports:
+      - '5432:5432'
+    volumes:
+      - 'postgres_data:/var/lib/postgresql/data'
+    networks:
+      - inngest-network
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - 'pg_isready -U inngest -d inngest'
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: 'redis:7-alpine'
+    ports:
+      - '6379:6379'
+    volumes:
+      - 'redis_data:/data'
+    networks:
+      - inngest-network
+    healthcheck:
+      test:
+        - CMD
+        - redis-cli
+        - ping
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  postgres_data: null
+  redis_data: null
+
+networks:
+  inngest-network:
+    driver: bridge

@@ -1,103 +1,195 @@
-import Image from "next/image";
+"use client";
+
+// ℹ️ Import the hook from the hooks sub-package:
+import { useInngestSubscription } from "@inngest/realtime/hooks";
+import { useState, useEffect } from "react";
+import { fetchRealtimeSubscriptionToken } from "./actions/get-subscribe-token";
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [userId, setUserId] = useState("123");
+  const [prompt, setPrompt] = useState("Como fazer um bolo?");
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  // The hook automatically fetches the token from the server.
+  // The server checks that the user is authorized to subscribe to
+  // the channel and topic, then returns a token:
+  const { data, error, freshData, state, latestData } = useInngestSubscription({
+    refreshToken: () => fetchRealtimeSubscriptionToken(userId),
+  });
+
+  // Debug: mostrar estrutura das mensagens
+  useEffect(() => {
+    if (data && data.length > 0) {
+      console.log("📨 Mensagens recebidas:", data);
+      data.forEach((message, index) => {
+        console.log(`📋 Mensagem ${index + 1}:`, {
+          timestamp: message.data.timestamp,
+          response: message.data.response,
+          success: message.data.success,
+          fullMessage: message
+        });
+      });
+    }
+  }, [data]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setMessage("");
+
+    try {
+      const response = await fetch("/api/ai/recommendation", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ prompt, userId }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        setMessage(`✅ ${result.message} (Run ID: ${result.runId})`);
+      } else {
+        setMessage(`❌ ${result.error}`);
+      }
+    } catch (err) {
+      console.error("Erro ao processar recomendação:", err);
+      setMessage("❌ Erro ao processar recomendação");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-4xl mx-auto px-4">
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            🚀 Inngest Demo App
+          </h1>
+          <p className="text-xl text-gray-600">
+            Exemplo da documentação oficial do Inngest Realtime
+          </p>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        <div className="bg-white p-6 rounded-lg shadow-md mb-8">
+          <h2 className="text-xl font-bold mb-4">🔧 Configuração do Hook</h2>
+          <div className="mb-4">
+            <label htmlFor="userId" className="block text-sm font-medium text-gray-700 mb-1">
+              User ID para o canal:
+            </label>
+            <input
+              type="text"
+              id="userId"
+              value={userId}
+              onChange={(e) => setUserId(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Digite o ID do usuário..."
+            />
+          </div>
+          
+          <div className="bg-gray-50 p-4 rounded-md">
+            <h3 className="font-semibold mb-2">📊 Estado do Hook:</h3>
+            <ul className="list-disc list-inside space-y-1 text-sm text-gray-700">
+              <li><strong>State:</strong> {state}</li>
+              <li><strong>Data length:</strong> {data?.length || 0}</li>
+              <li><strong>Has error:</strong> {error ? "Sim" : "Não"}</li>
+              <li><strong>Has fresh data:</strong> {freshData ? "Sim" : "Não"}</li>
+              <li><strong>Latest data:</strong> {latestData ? "Sim" : "Não"}</li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-lg shadow-md mb-8">
+          <h2 className="text-xl font-bold mb-4">🚀 Testar Recomendação</h2>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label htmlFor="prompt" className="block text-sm font-medium text-gray-700 mb-1">
+                Prompt:
+              </label>
+              <input
+                type="text"
+                id="prompt"
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Digite sua pergunta..."
+                required
+              />
+            </div>
+            
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? "Processando..." : "Gerar Recomendação"}
+            </button>
+          </form>
+
+          {message && (
+            <div className="mt-4 p-3 rounded-md bg-blue-50 border border-blue-200">
+              <p className="text-blue-800">{message}</p>
+            </div>
+          )}
+        </div>
+
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold">📨 Mensagens Recebidas</h2>
+            <div className="flex items-center gap-3">
+              {data && data.length > 0 && (
+                <div className="text-sm text-gray-600">
+                  {data.length} etapa(s) concluída(s)
+                </div>
+              )}
+              {data && data.length > 0 && (
+                <button
+                  onClick={() => window.location.reload()}
+                  className="px-3 py-1 text-xs bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
+                >
+                  Limpar
+                </button>
+              )}
+            </div>
+          </div>
+          
+          {error && (
+            <div className="mb-4 p-3 rounded-md bg-red-50 border border-red-200">
+              <p className="text-red-800">Erro: {error.message}</p>
+            </div>
+          )}
+          
+          {data && data.length > 0 ? (
+            <div className="space-y-3">
+              {data.map((message, i) => (
+                <div key={i} className="p-4 bg-blue-50 border border-blue-200 rounded-md">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="text-sm font-medium text-blue-600">
+                      Etapa {i + 1}
+                    </div>
+                    <div className="text-xs text-blue-500">
+                      {message.data.timestamp ? new Date(message.data.timestamp).toLocaleTimeString() : new Date().toLocaleTimeString()}
+                    </div>
+                  </div>
+                  <div className="text-blue-800 font-medium">
+                    {message.data.response}
+                  </div>
+                  <div className="mt-2 text-xs text-blue-600">
+                    Status: {message.data.success ? "✅ Sucesso" : "❌ Falha"}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-gray-500 text-center py-8">
+              Nenhuma mensagem recebida ainda. Execute a função para ver as etapas em tempo real.
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

@@ -1,0 +1,7 @@
+{
+  "dev": false,
+  "env": "production",
+  "server_kind": "self-hosted",
+  "base_url": "http://localhost:8288",
+  "serve_url": "http://host.docker.internal:3000/api/inngest"
+}

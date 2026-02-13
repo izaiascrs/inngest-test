@@ -1,36 +1,113 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🚀 Demo Inngest - Processamento em Background
 
-## Getting Started
+Este é um exemplo prático de como usar o [Inngest](https://inngest.com) para processar tarefas em background com Next.js 15.
 
-First, run the development server:
+## 📋 O que este exemplo demonstra
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Envio de emails em background**: Simula o processamento assíncrono de emails
+- **Processo de boas-vindas**: Demonstra um workflow multi-etapas para onboarding de usuários
+- **Interface de teste**: Formulários para testar as funcionalidades
+- **Dashboard do Inngest**: Visualização das execuções e logs
+
+## 🛠️ Tecnologias utilizadas
+
+- **Next.js 15** - Framework React
+- **Inngest** - Processamento de tarefas em background
+- **TypeScript** - Tipagem estática
+- **Tailwind CSS** - Estilização
+
+## 🚀 Como executar
+
+1. **Instale as dependências:**
+   ```bash
+   npm install
+   ```
+
+2. **Execute o servidor de desenvolvimento:**
+   ```bash
+   npm run dev
+   ```
+
+3. **Acesse a aplicação:**
+   - Interface principal: [http://localhost:3000](http://localhost:3000)
+   - Dashboard do Inngest: [http://localhost:3000/api/inngest](http://localhost:3000/api/inngest)
+
+## 🧪 Como testar
+
+### 1. Envio de Email
+- Preencha o formulário "📧 Enviar Email" com:
+  - **Para**: um email de exemplo
+  - **Assunto**: assunto do email
+  - **Mensagem**: conteúdo do email
+  - **ID do Usuário**: um identificador único
+- Clique em "Enviar Email"
+- Observe os logs no console do servidor
+
+### 2. Processo de Boas-vindas
+- Preencha o formulário "🎉 Boas-vindas ao Usuário" com:
+  - **ID do Usuário**: identificador único
+  - **Email**: email do usuário
+  - **Nome**: nome do usuário
+- Clique em "Enviar Boas-vindas"
+- Observe o processamento multi-etapas nos logs
+
+## 📁 Estrutura do projeto
+
+```
+src/
+├── app/
+│   ├── api/
+│   │   ├── inngest/route.ts      # Endpoint do Inngest
+│   │   ├── send-email/route.ts   # API para envio de email
+│   │   └── welcome-user/route.ts # API para boas-vindas
+│   ├── layout.tsx                # Layout principal
+│   └── page.tsx                  # Página inicial
+├── components/
+│   ├── EmailForm.tsx             # Formulário de email
+│   └── WelcomeForm.tsx           # Formulário de boas-vindas
+└── lib/
+    ├── inngest.ts                # Configuração do cliente
+    └── functions.ts              # Funções do Inngest
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🔧 Funcionalidades implementadas
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Função de Envio de Email (`sendEmail`)
+- Processa emails de forma assíncrona
+- Simula delay de processamento
+- Retorna status de sucesso
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Função de Boas-vindas (`welcomeUser`)
+- Workflow multi-etapas:
+  1. Envio de email de boas-vindas
+  2. Criação de perfil do usuário
+  3. Envio de email de configuração
+- Demonstra o uso de `step.run()` para etapas sequenciais
 
-## Learn More
+## 📊 Monitoramento
 
-To learn more about Next.js, take a look at the following resources:
+- **Console do servidor**: Logs detalhados de cada execução
+- **Dashboard do Inngest**: Interface web para visualizar execuções, retries e erros
+- **Logs estruturados**: Cada função retorna informações sobre o processamento
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🎯 Conceitos demonstrados
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. **Eventos**: Como disparar eventos para processamento em background
+2. **Funções**: Como criar funções que processam eventos
+3. **Steps**: Como dividir funções em etapas para melhor controle
+4. **Retries**: O Inngest automaticamente tenta novamente em caso de falha
+5. **Observabilidade**: Como monitorar execuções e debuggar problemas
 
-## Deploy on Vercel
+## 📚 Próximos passos
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Integrar com serviços reais de email (SendGrid, Resend, etc.)
+- Adicionar persistência de dados (banco de dados)
+- Implementar autenticação de usuários
+- Adicionar mais tipos de eventos e funções
+- Configurar webhooks para notificações
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🔗 Links úteis
+
+- [Documentação do Inngest](https://inngest.com/docs)
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Inngest GitHub](https://github.com/inngest/inngest)
