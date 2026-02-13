@@ -6,5 +6,7 @@ export const inngest = new Inngest({
   id: "my-app",
   middleware: [
     realtimeMiddleware()
-  ],  
+  ],
+  baseUrl: "https://inngest.applify.com.br",
+  env: "production",
 });
