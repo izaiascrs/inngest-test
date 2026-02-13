@@ -5,6 +5,6 @@ import { functions } from "@/lib/functions";
 // Create an API that serves the functions
 export const { GET, POST, PUT } = serve({
   client: inngest,
-  functions: [...functions],
-  baseUrl: "https://inngest.applify.com.br/",
+  functions: [...functions],  
+  serveHost: "https://inngest.applify.com.br",
 });
