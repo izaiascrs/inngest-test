@@ -24,7 +24,6 @@ export const createRecommendation = inngest.createFunction(
   { id: "create-recommendation" },
   { event: "ai/recommendation.requested" },
   async ({ event, step, publish }) => {
-    console.log(`🚀 Iniciando processo para prompt: "${event.data.prompt}" do usuário: ${event.data.userId}`);
 
     // Etapa 1: Análise inicial
     await step.run('analyze-prompt', async () => {

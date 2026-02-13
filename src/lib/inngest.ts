@@ -4,6 +4,7 @@ import { realtimeMiddleware } from "@inngest/realtime/middleware";
 
 export const inngest = new Inngest({
   id: "my-app",
-  baseUrl: "https://inngest.applify.com.br",  
-  middleware: [realtimeMiddleware()],
+  middleware: [
+    realtimeMiddleware()
+  ],  
 });
