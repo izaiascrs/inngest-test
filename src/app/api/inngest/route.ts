@@ -6,4 +6,5 @@ import { functions } from "@/lib/functions";
 export const { GET, POST, PUT } = serve({
   client: inngest,
   functions: [...functions],
+  baseUrl: "https://inngest.applify.com.br/",
 });
